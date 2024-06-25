@@ -1,11 +1,27 @@
 ---
-- name: Installing MinIO dependencies for yum or dnf
+
+###############
+### YUM/DNF ###
+###############
+- name: Installing MinIO Linux dependencies for yum or dnf
   ansible.builtin.yum:
     name:
       - yum-utils
     state: present
     update_cache: true
   when: ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
+
+- name: Install MinIO RPM package
+  ansible.builtin.yum:
+    name: https://dl.min.io/server/minio/release/linux-amd64/archive/minio.rpm
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
+
+###############
+###   APT   ###
+###############
 
 - name: Installing MinIO dependencies for apt
   ansible.builtin.apt:
@@ -16,69 +32,14 @@
     update_cache: true
   when: ansible_pkg_mgr == 'apt'
 
-- name: Installing MinIO repository for RHEL
-  get_url:
-    url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-    dest: /etc/yum.repos.d/hashicorp.repo
-  when: 
-    - ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
-    - ansible_distribution != 'Amazon'
+- name: Download MinIO Debian package
+  ansible.builtin.get_url:
+    url: https://dl.min.io/server/minio/release/linux-amd64/archive/minio.deb
+    dest: /tmp/minio.deb
 
-- name: Installing HashiCorp repository for Amazon Linux
-  get_url:
-    url: https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-    dest: /etc/yum.repos.d/hashicorp.repo
-  when: 
-   - ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
-   - ansible_distribution == 'Amazon'
-   
-- name: Add key for apt
-  ansible.builtin.apt_key:
-    url: https://apt.releases.hashicorp.com/gpg
-  when: ansible_pkg_mgr == 'apt'
-
-- name: Installing HashiCorp repository for apt
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-    state: present
-  when: ansible_pkg_mgr == 'apt'
-
-- name: Installing MinIO package via yum
-  ansible.builtin.yum:
-    name:
-      - "MinIO-{{ MinIO_version }}"
-    state: present
-    update_cache: true
-  when:
-    - ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
-    - not enterprise
-
-- name: Installing MinIO enterprise package via yum
-  ansible.builtin.yum:
-    name:
-      - "MinIO-enterprise-{{ MinIO_version }}+ent"
-    state: present
-    update_cache: true
-  when:
-    - ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
-    - enterprise
-
-- name: Installing MinIO package via apt
+- name: Install MinIO Debian package
+  become: true
   ansible.builtin.apt:
-    name:
-      - "MinIO={{ MinIO_version }}"
+    deb: /tmp/minio.deb
     state: present
-    update_cache: true
-  when:
-    - ansible_pkg_mgr == 'apt'
-    - not enterprise
-
-- name: Installing MinIO enterprise package via apt
-  ansible.builtin.apt:
-    name:
-      - "MinIO-enterprise={{ MinIO_version }}+ent"
-    state: present
-    update_cache: true
-  when:
-    - ansible_pkg_mgr == 'apt'
-    - enterprise
+    update_cache: yes
