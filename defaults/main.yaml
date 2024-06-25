@@ -10,3 +10,12 @@ minio_ansible_group: 'minio'
 minio_user: 'minio'
 minio_group: 'minio'
 minio_create_account: true
+minio_install_directory: /usr/local/bin
+minio_env_file: /etc/default/minio
+
+minio_server_opts: '--address 0.0.0.0:9000 --console-address 0.0.0.0:9001'
+minio_volumes: /mnt/data
+
+
+use_systemd: true
+minio_open_file_limit: 65536
