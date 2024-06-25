@@ -1,6 +1,5 @@
 ---
 packer_build: false
-use_minio_repository: false
 
 # only supported when using the MinIO repository
 enterprise: false

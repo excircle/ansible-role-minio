@@ -1,15 +1,14 @@
 ---
 - name: Installing MinIO via the MinIO repository
-  include_tasks: repository_install.yaml
-  when: use_minio_repository
+  include_tasks: binary_install.yaml
 
-- name: Laying out OS level configurations
-  include_tasks: os_level_configuration.yml
+# - name: Laying out OS level configurations
+#   include_tasks: os_level_configuration.yml
 
-- name: Installing MinIO via direct archive
-  include_tasks: manual_install.yml
-  when: not use_minio_repository
+# - name: Installing MinIO via direct archive
+#   include_tasks: manual_install.yml
+#   when: not use_minio_repository
 
-- name: Laying out remaining items if not a packer image
-  include_tasks: non_packer_install.yml
-  when: not packer_build
+# - name: Laying out remaining items if not a packer image
+#   include_tasks: non_packer_install.yml
+#   when: not packer_build
