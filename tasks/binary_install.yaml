@@ -28,18 +28,57 @@
     name:
       - gpg-agent
       - curl
+      - jq
+      - tree
+      - mlocate
+      - tzdata
+      - chrony
     state: present
     update_cache: true
   when: ansible_pkg_mgr == 'apt'
 
-- name: Download MinIO Debian package
-  ansible.builtin.get_url:
-    url: https://dl.min.io/server/minio/release/linux-amd64/archive/minio.deb
-    dest: /tmp/minio.deb
-
-- name: Install MinIO Debian package
+### CHRONY Setup
+- name: Setting timezone to America/Los_Angeles
+  ansible.builtin.timezone:
+    name: America/Los_Angeles
   become: true
-  ansible.builtin.apt:
-    deb: /tmp/minio.deb
-    state: present
-    update_cache: yes
+
+- name: Enable chrony service
+  ansible.builtin.systemd:
+    name: chrony
+    enabled: true
+  become: true
+
+- name: Start chrony service
+  ansible.builtin.systemd:
+    name: chrony
+    state: started
+  become: true
+
+### MinIO Binary Install
+- name: Download MinIO Server Binary
+  ansible.builtin.get_url:
+    url: https://dl.min.io/server/minio/release/linux-amd64/minio
+    dest: "{{ minio_install_directory }}/minio"
+    mode: '0755'
+  become: true
+
+- name: Download MinIO Command Line Client
+  ansible.builtin.get_url:
+    url: https://dl.min.io/client/mc/release/linux-amd64/mc
+    dest: "{{ minio_install_directory }}/mc"
+    mode: '0755'
+  become: true
+
+- name: Create minio-user group
+  ansible.builtin.group:
+    name: "{{ minio_group }}"
+    system: true
+
+- name: Create minio-user user
+  ansible.builtin.user:
+    name: "{{ minio_user }}"
+    home: "/home/{{ minio_user }}"
+    group: "{{ minio_user }}"
+    system: true
+    create_home: true
