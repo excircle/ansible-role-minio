@@ -1,23 +1,47 @@
 ---
+##############
+### SYSTEM ###
+##############
+
+- name: Setting timezone to America/Los_Angeles
+  ansible.builtin.timezone:
+    name: "{{timezone}}"
+  become: true
 
 ###############
 ### YUM/DNF ###
 ###############
-- name: Installing MinIO Linux dependencies for yum or dnf
+
+- name: Installing MinIO dependencies for yum
   ansible.builtin.yum:
     name:
       - yum-utils
+      - gpg-agent
+      - curl
+      - jq
+      - tree
+      - mlocate
+      - tzdata
+      - chrony
     state: present
     update_cache: true
-  when: ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
+  when: ansible_pkg_mgr == 'yum'
 
-- name: Install MinIO RPM package
-  ansible.builtin.yum:
-    name: https://dl.min.io/server/minio/release/linux-amd64/archive/minio.rpm
-    state: present
-    update_cache: true
+- name: Enable chrony service
+  ansible.builtin.systemd:
+    name: chronyd
+    enabled: true
   become: true
-  when: ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
+  when: ansible_pkg_mgr == 'yum'
+
+- name: Start chrony service
+  ansible.builtin.systemd:
+    name: chronyd
+    state: started
+  become: true
+  when: ansible_pkg_mgr == 'yum'
+
+
 
 ###############
 ###   APT   ###
@@ -37,23 +61,25 @@
     update_cache: true
   when: ansible_pkg_mgr == 'apt'
 
-### CHRONY Setup
-- name: Setting timezone to America/Los_Angeles
-  ansible.builtin.timezone:
-    name: America/Los_Angeles
-  become: true
-
 - name: Enable chrony service
   ansible.builtin.systemd:
     name: chrony
     enabled: true
   become: true
+  when: ansible_pkg_mgr == 'apt'
 
 - name: Start chrony service
   ansible.builtin.systemd:
     name: chrony
     state: started
   become: true
+  when: ansible_pkg_mgr == 'apt'
+
+
+#################
+###   MinIO   ###
+#################
+
 
 ### MinIO Binary Install
 - name: Download MinIO Server Binary

@@ -1,0 +1,28 @@
+---
+- name: Set node_count variable
+  ansible.builtin.set_fact:
+    node_count: "{{ groups['all'] | length }}"
+
+- name: Add host entries to /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ hostvars[item].ansible_host }} {{ item }}"
+    create: yes
+    state: present
+  with_items: "{{ groups['all'] }}"
+
+- name: Templating out MinIO Defaults File
+  ansible.builtin.template:
+    src: minio.j2
+    dest: "{{ minio_env_file }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Templating out MinIO SystemD Service File
+  ansible.builtin.template:
+    src: minio.service.j2
+    dest: "{{ minio_systemd_service_file }}"
+    owner: root
+    group: root
+    mode: '0644'
