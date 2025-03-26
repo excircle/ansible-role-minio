@@ -13,6 +13,5 @@ minio_root_user: miniominio
 minio_root_password: miniominio
 
 minio_server_basename: 'minio-'
-minio_volumes: /mnt/data
-minio_disk_count: 4
+minio_disks: []
 minio_server_opts: '--address 0.0.0.0:9000 --console-address 0.0.0.0:9001'

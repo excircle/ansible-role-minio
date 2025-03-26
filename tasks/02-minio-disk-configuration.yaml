@@ -1,0 +1,60 @@
+- name: Determine if MinIO disks are attached to the target node, exit if disks are not attached
+  fail:
+    msg: "MinIO disk /dev/{{ item }} is not attached to the node."
+  when: item not in ansible_devices
+  loop: "{{ minio_disks }}"
+
+- name: Determine if MinIO disks are mounted on the target node (initial check)
+  set_fact:
+    minio_disk_status: "{{ minio_disk_status | default({}) | combine({ item: (ansible_mounts | selectattr('device', 'search', '/dev/' ~ item) | list | length > 0) }) }}"
+  loop: "{{ minio_disks }}"
+
+- name: Create mount directories for MinIO disks
+  file:
+    path: "/mnt/data{{ item.0 | int + 1 }}"
+    state: directory
+    mode: '0755'
+  with_indexed_items: "{{ minio_disks }}"
+
+- name: Check if filesystem exists on each NVME disk
+  command: "blkid /dev/{{ item }}"
+  register: blkid_results
+  ignore_errors: yes
+  loop: "{{ minio_disks }}"
+
+- name: Build a dict of filesystem status for each NVME disk
+  set_fact:
+    fs_present: "{{ fs_present | default({}) | combine({ item.item: (item.rc == 0) }) }}"
+  loop: "{{ blkid_results.results }}"
+
+- name: Create XFS filesystem on each NVME disk if not present
+  command: "mkfs.xfs -f /dev/{{ item }}"
+  loop: "{{ minio_disks }}"
+  when: not fs_present[item] | default(false)
+
+- name: Mount each NVME disk to its corresponding /mnt/data directory
+  mount:
+    path: "/mnt/data{{ item.0 | int + 1 }}"
+    src: "/dev/{{ item.1 }}"
+    fstype: xfs
+    state: mounted
+  with_indexed_items: "{{ minio_disks }}"
+
+- name: Refresh mount facts after mounting disks
+  setup:
+    gather_subset:
+      - mounts
+
+- name: Determine if MinIO disks are mounted on the target node (updated check)
+  set_fact:
+    minio_disk_status: "{{ {} }}"
+    
+- name: Update MinIO disk mount status after mounting
+  set_fact:
+    minio_disk_status: "{{ minio_disk_status | combine({ item: (ansible_mounts | selectattr('device', 'search', '/dev/' ~ item) | list | length > 0) }) }}"
+  loop: "{{ minio_disks }}"
+
+- name: Display updated MinIO disk mount status
+  debug:
+    msg: "Disk /dev/{{ item.key }} is {{ 'mounted' if item.value else 'NOT mounted' }}."
+  loop: "{{ minio_disk_status | dict2items }}"

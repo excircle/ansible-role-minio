@@ -1,12 +1,12 @@
 ---
-- name: Installing MinIO binary from MinIO release repo
-  ansible.builtin.include_tasks: 01-minio-binary-install.yaml
+- name: Checking Disk Status
+  ansible.builtin.include_tasks: 02-minio-disk-configuration.yaml
 
-- name: Configuring systemd for MinIO
-  ansible.builtin.include_tasks: 02-minio-systemd-config.yaml
+# - name: Configuring systemd for MinIO
+#   ansible.builtin.include_tasks: 02-minio-systemd-config.yaml
 
-- name: Configuring MinIO system
-  ansible.builtin.include_tasks: 03-minio-system-config.yaml
+# - name: Configuring MinIO system
+#   ansible.builtin.include_tasks: 03-minio-system-config.yaml
 
 # - name: Laying out remaining items if not a packer image
 #   include_tasks: non_packer_install.yml
