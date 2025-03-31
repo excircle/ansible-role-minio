@@ -7,6 +7,10 @@ minio_create_account: true
 
 minio_install_directory: /usr/local/bin
 minio_env_file: /etc/default/minio
+minio_license_directory: /opt/minio
+minio_license_file: "{{ minio_license_directory }}/license"
+minio_volumes_entry_present: true
+minio_pre_check: true
 minio_systemd_service_file: /usr/lib/systemd/system/minio.service
 
 minio_root_user: miniominio
@@ -15,3 +19,10 @@ minio_root_password: miniominio
 minio_server_basename: 'minio-'
 minio_disks: []
 minio_server_opts: '--address 0.0.0.0:9000 --console-address 0.0.0.0:9001'
+
+minio_flavor: "aistor"
+minio_binary_arch: "linux-amd64"
+minio_release: "minio"
+minio_archive: "{{ 'archive/' if minio_release != 'minio' else '' }}"
+
+minio_binary_url: "https://dl.min.io/{{ minio_flavor }}/minio/release/{{ minio_binary_arch }}/{{ minio_archive }}{{ minio_release }}"

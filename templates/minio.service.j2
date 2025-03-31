@@ -16,7 +16,9 @@ Group={{ minio_group }}
 ProtectProc=invisible
 
 EnvironmentFile={{ minio_env_file }}
+{% if minio_pre_check %}
 ExecStartPre=/bin/bash -c "if [ -z \"${MINIO_VOLUMES}\" ]; then echo 'Variable MINIO_VOLUMES not set in {{ minio_env_file }}'; exit 1; fi"
+{% endif %}
 ExecStart={{ minio_install_directory }}/minio server $MINIO_OPTS $MINIO_VOLUMES
 
 # Let systemd restart this service always

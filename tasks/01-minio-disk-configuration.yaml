@@ -1,3 +1,4 @@
+---
 - name: Determine if MinIO disks are attached to the target node, exit if disks are not attached
   fail:
     msg: "MinIO disk /dev/{{ item }} is not attached to the node."

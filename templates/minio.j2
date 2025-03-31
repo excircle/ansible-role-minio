@@ -6,8 +6,11 @@
 MINIO_ROOT_USER=miniominio
 MINIO_ROOT_PASSWORD=miniominio
 
-# MINIO_VOLUMES sets the storage volume or path to use for the MinIO server.
-MINIO_VOLUMES="http://{{ inventory_hostname }}:9000/mnt/data{1...4}/minio"
+MINIO_LICENSE=/opt/minio/license
+
+{% if minio_volumes_entry_present %}
+MINIO_VOLUMES="http://minio{1...{{ node_count }}}:9000/mnt/data{1...{{ minio_disks|length }}}/minio"
+{% endif %}
 
 # MINIO_OPTS sets any additional commandline options to pass to the MinIO server.
 # For example, '--console-address :9001' sets the MinIO Console listen port
@@ -15,6 +18,4 @@ MINIO_OPTS="--address 0.0.0.0:9000 --console-address 0.0.0.0:9001"
 
 # MINIO_SERVER_URL sets the hostname of the local machine for use with the MinIO Server
 # MinIO assumes your network control plane can correctly resolve this hostname to the local machine
-
-# Uncomment the following line and replace the value with the correct hostname for the local machine and port for the MinIO server (9000 by default).
-MINIO_SERVER_URL="http://{{ inventory_hostname }}:9000"
+MINIO_SERVER_URL="http://0.0.0.0:9000"

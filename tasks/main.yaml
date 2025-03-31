@@ -1,13 +1,12 @@
 ---
-- name: Checking Disk Status
-  ansible.builtin.include_tasks: 02-minio-disk-configuration.yaml
+- name: Install MinIO Node Prerequisites
+  ansible.builtin.include_tasks: 00-minio-node-prereqs.yaml
 
-# - name: Configuring systemd for MinIO
-#   ansible.builtin.include_tasks: 02-minio-systemd-config.yaml
+- name: Verify MinIO Node's Disk Configuration
+  ansible.builtin.include_tasks: 01-minio-disk-configuration.yaml
 
-# - name: Configuring MinIO system
-#   ansible.builtin.include_tasks: 03-minio-system-config.yaml
+- name: Provision The MinIO Binary
+  ansible.builtin.include_tasks: 02-minio-binary-install.yaml
 
-# - name: Laying out remaining items if not a packer image
-#   include_tasks: non_packer_install.yml
-#   when: not packer_build
+- name: Configuring MinIO system
+  ansible.builtin.include_tasks: 03-minio-defaults-and-tls-config.yaml

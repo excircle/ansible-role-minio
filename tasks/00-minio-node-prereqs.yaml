@@ -1,12 +1,16 @@
 ---
-##############
-### SYSTEM ###
-##############
+#------------------------------------------------------------------------------
+# SYSTEM SETTINGS
+#------------------------------------------------------------------------------
 
 - name: Setting timezone to America/Los_Angeles
   ansible.builtin.timezone:
     name: "{{timezone}}"
   become: true
+
+#------------------------------------------------------------------------------
+# DISTRO SPECIFIC SETTINGS
+#------------------------------------------------------------------------------
 
 ###############
 ### YUM/DNF ###
@@ -41,8 +45,6 @@
   become: true
   when: ansible_pkg_mgr == 'yum'
 
-
-
 ###############
 ###   APT   ###
 ###############
@@ -57,6 +59,7 @@
       - mlocate
       - tzdata
       - chrony
+      - xfsprogs
     state: present
     update_cache: true
   when: ansible_pkg_mgr == 'apt'
@@ -75,36 +78,3 @@
   become: true
   when: ansible_pkg_mgr == 'apt'
 
-
-#################
-###   MinIO   ###
-#################
-
-
-### MinIO Binary Install
-- name: Download MinIO Server Binary
-  ansible.builtin.get_url:
-    url: https://dl.min.io/server/minio/release/linux-amd64/minio
-    dest: "{{ minio_install_directory }}/minio"
-    mode: '0755'
-  become: true
-
-- name: Download MinIO Command Line Client
-  ansible.builtin.get_url:
-    url: https://dl.min.io/client/mc/release/linux-amd64/mc
-    dest: "{{ minio_install_directory }}/mc"
-    mode: '0755'
-  become: true
-
-- name: Create minio-user group
-  ansible.builtin.group:
-    name: "{{ minio_group }}"
-    system: true
-
-- name: Create minio-user user
-  ansible.builtin.user:
-    name: "{{ minio_user }}"
-    home: "/home/{{ minio_user }}"
-    group: "{{ minio_user }}"
-    system: true
-    create_home: true

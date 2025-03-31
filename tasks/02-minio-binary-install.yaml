@@ -1,0 +1,53 @@
+---
+#################
+###   MinIO   ###
+#################
+
+### Check if MinIO binaries exist
+- name: Check if MinIO Server binary exists
+  ansible.builtin.stat:
+    path: "{{ minio_install_directory }}/minio"
+  register: minio_binary
+
+- name: Check if MinIO Client (mc) binary exists
+  ansible.builtin.stat:
+    path: "{{ minio_install_directory }}/mc"
+  register: mc_binary
+
+### Download binaries only if they do not exist
+- name: Download MinIO Server Binary
+  ansible.builtin.get_url:
+    url: "{{ minio_binary_url }}"
+    dest: "{{ minio_install_directory }}/minio"
+    mode: '0755'
+  become: true
+  when: not minio_binary.stat.exists
+
+- name: Download MinIO Command Line Client
+  ansible.builtin.get_url:
+    url: "https://dl.min.io/client/mc/release/linux-amd64/mc"
+    dest: "{{ minio_install_directory }}/mc"
+    mode: '0755'
+  become: true
+  when: not mc_binary.stat.exists
+
+- name: Create minio-user group
+  ansible.builtin.group:
+    name: "{{ minio_group }}"
+    system: true
+
+- name: Create minio-user user
+  ansible.builtin.user:
+    name: "{{ minio_user }}"
+    home: "/home/{{ minio_user }}"
+    group: "{{ minio_group }}"
+    system: true
+    create_home: true
+
+- name: Ensure MinIO data directories have proper ownership
+  file:
+    path: "/mnt/data{{ item.0 | int + 1 }}"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    state: directory
+  with_indexed_items: "{{ minio_disks }}"
