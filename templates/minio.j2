@@ -14,7 +14,7 @@ MINIO_VOLUMES="http://minio{1...{{ node_count }}}:9000/mnt/data{1...{{ minio_dis
 
 # MINIO_OPTS sets any additional commandline options to pass to the MinIO server.
 # For example, '--console-address :9001' sets the MinIO Console listen port
-MINIO_OPTS="--address 0.0.0.0:9000 --console-address 0.0.0.0:9001"
+MINIO_OPTS="{{ minio_server_opts }}"
 
 # MINIO_SERVER_URL sets the hostname of the local machine for use with the MinIO Server
 # MinIO assumes your network control plane can correctly resolve this hostname to the local machine

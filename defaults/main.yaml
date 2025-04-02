@@ -7,18 +7,25 @@ minio_create_account: true
 
 minio_install_directory: /usr/local/bin
 minio_env_file: /etc/default/minio
+minio_config_yaml_file: /etc/default/config.yaml
 minio_license_directory: /opt/minio
 minio_license_file: "{{ minio_license_directory }}/license"
 minio_volumes_entry_present: true
 minio_pre_check: true
 minio_systemd_service_file: /usr/lib/systemd/system/minio.service
+minio_use_yaml_config_file: false
 
 minio_root_user: miniominio
 minio_root_password: miniominio
 
 minio_server_basename: 'minio-'
+minio_pools: []
 minio_disks: []
-minio_server_opts: '--address 0.0.0.0:9000 --console-address 0.0.0.0:9001'
+minio_service_port: 9000
+minio_api_address: "--address 0.0.0.0:{{ 9000 }}"
+minio_console_port: 9001
+minio_console_port_address: "--console-address 0.0.0.0{{ 9001 }}"
+minio_server_opts: "{{ minio_api_address }} {{ minio_console_port_address }} {% if minio_use_yaml_config_file %}--config /etc/default/config.yaml{% endif %}"
 
 minio_flavor: "aistor"
 minio_binary_arch: "linux-amd64"

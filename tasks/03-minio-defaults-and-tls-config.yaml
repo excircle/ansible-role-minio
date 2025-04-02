@@ -35,6 +35,14 @@
     group: root
     mode: '0644'
 
+- name: Templating out MinIO Config YAML File
+  ansible.builtin.template:
+    src: minio-yaml-config.j2
+    dest: "{{ minio_config_yaml_file }}"
+    owner: "{{ minio_user}}"
+    group: "{{ minio_group}}"
+    mode: '0644'
+
 - name: Templating out MinIO SystemD Service File
   ansible.builtin.template:
     src: minio.service.j2

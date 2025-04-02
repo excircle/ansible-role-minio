@@ -1,0 +1,10 @@
+version: v2
+address: ":{{ minio_service_port }}"
+rootUser: "miniominio"
+rootPassword: "miniominio"
+console-address: ":{{ minio_console_port }}"
+pools:
+{% for pool in minio_pools %}
+  - args:
+      - "{{ pool }}"
+{% endfor %}
