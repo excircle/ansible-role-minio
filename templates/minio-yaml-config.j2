@@ -4,7 +4,12 @@ rootUser: "miniominio"
 rootPassword: "miniominio"
 console-address: ":{{ minio_console_port }}"
 pools:
-{% for pool in minio_pools %}
+{% for pool_item in minio_pools %}
   - args:
-      - "{{ pool }}"
+{% for endpoint in pool_item.pools %}
+      - "{{ endpoint }}"
+{% endfor %}
+{% if pool_item.stripe is defined %}
+    set-drive-count: {{ pool_item.stripe }}
+{% endif %}
 {% endfor %}

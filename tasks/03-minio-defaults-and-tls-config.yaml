@@ -15,7 +15,7 @@
   file:
     path: "{{ minio_license_directory }}"
     state: directory
-    owner: root
+    owner: "{{ minio_user }}"
     group: "{{ minio_group }}"
     mode: '0755'
 
@@ -23,8 +23,8 @@
   ansible.builtin.template:
     src: minio-license.j2
     dest: "{{ minio_license_file }}"
-    owner: root
-    group: root
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
     mode: '0644'
 
 - name: Templating out MinIO Defaults File

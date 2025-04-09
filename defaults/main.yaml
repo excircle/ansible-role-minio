@@ -24,7 +24,7 @@ minio_disks: []
 minio_service_port: 9000
 minio_api_address: "--address 0.0.0.0:{{ 9000 }}"
 minio_console_port: 9001
-minio_console_port_address: "--console-address 0.0.0.0{{ 9001 }}"
+minio_console_port_address: "--console-address 0.0.0.0:{{ 9001 }}"
 minio_server_opts: "{{ minio_api_address }} {{ minio_console_port_address }} {% if minio_use_yaml_config_file %}--config /etc/default/config.yaml{% endif %}"
 
 minio_flavor: "aistor"
