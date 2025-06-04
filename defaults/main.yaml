@@ -9,6 +9,13 @@ minio_install_directory: /usr/local/bin
 minio_env_file: /etc/default/minio
 minio_config_yaml_file: /etc/default/config.yaml
 minio_license_directory: /opt/minio
+minio_use_tls: true
+minio_tls_directory: "{{ minio_license_directory }}/certs"
+minio_tls_ca_directory: "{{ minio_tls_directory }}/CAs"
+local_minio_certs_dir: ".certs"
+local_minio_ca_cert: "certs/ca.pem"
+local_minio_private_cert: "certs/private.key"
+local_minio_public_cert: "certs/public.crt"
 minio_license_file: "{{ minio_license_directory }}/license"
 minio_volumes_entry_present: true
 minio_pre_check: true
@@ -25,7 +32,9 @@ minio_service_port: 9000
 minio_api_address: "--address 0.0.0.0:{{ 9000 }}"
 minio_console_port: 9001
 minio_console_port_address: "--console-address 0.0.0.0:{{ 9001 }}"
-minio_server_opts: "{{ minio_api_address }} {{ minio_console_port_address }} {% if minio_use_yaml_config_file %}--config /etc/default/config.yaml{% endif %}"
+minio_certs_dir_arg: "--certs-dir {{ minio_tls_directory }}"
+minio_server_opts: "{{ minio_api_address }} {{ minio_console_port_address }} {% if minio_use_yaml_config_file %}--config /etc/default/config.yaml{% endif %} {% if minio_use_tls %}{{ minio_certs_dir_arg }}{% endif %}"
+
 
 minio_flavor: "aistor"
 minio_binary_arch: "linux-amd64"

@@ -27,6 +27,51 @@
     group: "{{ minio_group }}"
     mode: '0644'
 
+- name: Create MinIO TLS directory
+  file:
+    path: "{{ minio_tls_directory }}"
+    state: directory
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: '0755'
+  when: minio_use_tls
+
+- name: Create MinIO TLS/CA directory
+  file:
+    path: "{{ minio_tls_ca_directory }}"
+    state: directory
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: '0755'
+  when: minio_use_tls
+
+- name: Provision CA cert to TLS/CA directory
+  ansible.builtin.copy:
+    src: "{{ local_minio_ca_cert }}"
+    dest: "{{ minio_tls_ca_directory }}"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_user }}"
+    mode: '0755'
+  when: minio_use_tls
+
+- name: Provision Private Key to TLS directory
+  ansible.builtin.copy:
+    src: "{{ local_minio_private_cert }}"
+    dest: "{{ minio_tls_directory }}"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_user }}"
+    mode: '0755'
+  when: minio_use_tls
+
+- name: Provision Public Key to TLS directory
+  ansible.builtin.copy:
+    src: "{{ local_minio_public_cert }}"
+    dest: "{{ minio_tls_directory }}"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_user }}"
+    mode: '0755'
+  when: minio_use_tls
+
 - name: Templating out MinIO Defaults File
   ansible.builtin.template:
     src: minio.j2

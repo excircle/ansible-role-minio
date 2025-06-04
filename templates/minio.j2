@@ -9,7 +9,7 @@ MINIO_ROOT_PASSWORD=miniominio
 MINIO_LICENSE=/opt/minio/license
 
 {% if minio_volumes_entry_present %}
-MINIO_VOLUMES="http://minio{1...{{ node_count }}}:9000/mnt/data{1...{{ minio_disks|length }}}/minio"
+MINIO_VOLUMES="http{% if minio_use_tls %}s{% endif %}://minio{1...{{ node_count }}}:9000/mnt/data{1...{{ minio_disks|length }}}/minio"
 {% endif %}
 
 # MINIO_OPTS sets any additional commandline options to pass to the MinIO server.
@@ -18,4 +18,4 @@ MINIO_OPTS="{{ minio_server_opts }}"
 
 # MINIO_SERVER_URL sets the hostname of the local machine for use with the MinIO Server
 # MinIO assumes your network control plane can correctly resolve this hostname to the local machine
-MINIO_SERVER_URL="http://0.0.0.0:9000"
+MINIO_SERVER_URL="http{% if minio_use_tls %}s{% endif %}://0.0.0.0:9000"
